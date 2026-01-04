@@ -3,26 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Math Quiz - Grade 9 & 10</title>
+    <title>Grade 9-10 Math Quiz (Bilingual)</title>
     <style>
         :root {
             --primary: #2c3e50;
             --accent: #3498db;
             --success: #27ae60;
-            --bg: #f4f7f6;
+            --error: #e74c3c;
+            --bg: #f8f9fa;
         }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); display: flex; justify-content: center; padding: 20px; }
-        #quiz-container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 600px; }
-        .question-box { margin-bottom: 20px; }
-        .lang-en { font-weight: 600; color: var(--primary); display: block; margin-bottom: 5px; }
-        .lang-ta { color: #555; font-style: italic; display: block; margin-bottom: 15px; }
-        .options-grid { display: grid; gap: 10px; }
-        button.option-btn { padding: 12px; border: 2px solid #ddd; border-radius: 8px; background: white; cursor: pointer; transition: 0.3s; text-align: left; }
-        button.option-btn:hover { border-color: var(--accent); background: #eef7ff; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); display: flex; justify-content: center; padding: 20px; margin: 0; }
+        #quiz-container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 700px; }
+        .progress { font-weight: bold; color: var(--accent); margin-bottom: 15px; font-size: 0.9em; letter-spacing: 1px; }
+        .question-box { margin-bottom: 25px; border-bottom: 1px solid #eee; padding-bottom: 20px; }
+        .lang-en { font-weight: 600; color: var(--primary); display: block; margin-bottom: 10px; font-size: 1.25em; line-height: 1.4; }
+        .lang-ta { color: #555; font-style: italic; display: block; margin-bottom: 10px; border-left: 4px solid var(--accent); padding-left: 15px; font-size: 1.1em; }
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        button.option-btn { padding: 18px; border: 2px solid #e0e0e0; border-radius: 10px; background: white; cursor: pointer; transition: all 0.2s ease; text-align: left; font-size: 1.05em; color: var(--primary); }
+        button.option-btn:hover { border-color: var(--accent); background: #f0f8ff; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.05); }
         #score-screen { text-align: center; display: none; }
-        .review-item { text-align: left; border-bottom: 1px solid #eee; padding: 10px 0; }
-        .correct { color: var(--success); font-weight: bold; }
-        .progress { font-size: 0.9em; color: #888; margin-bottom: 10px; }
+        .final-score-val { font-size: 4em; color: var(--accent); font-weight: 800; margin: 10px 0; }
+        .review-area { text-align: left; max-height: 400px; overflow-y: auto; margin-top: 30px; padding-right: 10px; border-top: 2px solid #eee; }
+        .review-item { padding: 15px 0; border-bottom: 1px solid #eee; }
+        .correct-ans { color: var(--success); font-weight: bold; }
+        .wrong-ans { color: var(--error); font-weight: bold; }
+        .btn-restart { margin-top:30px; padding:15px 30px; background:var(--accent); color:white; border:none; border-radius:8px; cursor:pointer; font-size: 1.1em; font-weight: bold; transition: background 0.3s; }
+        .btn-restart:hover { background: #2980b9; }
+        @media (max-width: 550px) { .options-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -38,113 +45,139 @@
     </div>
 
     <div id="score-screen">
-        <h2>Quiz Completed! / வினாடி வினா முடிந்தது!</h2>
-        <h1 id="final-score">0/10</h1>
-        <div id="review-area"></div>
-        <button onclick="location.reload()" style="margin-top:20px; padding:10px 20px; background:var(--accent); color:white; border:none; border-radius:5px; cursor:pointer;">Restart / மீண்டும் தொடங்கவும்</button>
+        <h2>Quiz Completed! / முடிந்தது!</h2>
+        <div class="final-score-val" id="final-score">0/10</div>
+        <div id="review-area" class="review-area"></div>
+        <button class="btn-restart" onclick="location.reload()">Take Another Quiz / புதிய வினாக்கள்</button>
     </div>
 </div>
 
 <script>
-const quizData = [
-    {
-        en: "What is the value of $(x+y)^2$?",
-        ta: "$(x+y)^2$-ன் மதிப்பு என்ன?",
-        options: ["$x^2 + 2xy + y^2$", "$x^2 + y^2$", "$x^2 - 2xy + y^2$", "$2x + 2y$"],
-        correct: "$x^2 + 2xy + y^2$"
-    },
-    {
-        en: "The sum of the angles in a triangle is:",
-        ta: "ஒரு முக்கோணத்தின் கோணங்களின் கூடுதல்:",
-        options: ["180°", "90°", "360°", "270°"],
-        correct: "180°"
-    },
-    {
-        en: "If $A = \\{1, 2, 3\\}$, what is the number of elements in $P(A)$?",
-        ta: "$A = \\{1, 2, 3\\}$ எனில், $P(A)$-ன் உறுப்புகளின் எண்ணிக்கை என்ன?",
-        options: ["8", "3", "6", "9"],
-        correct: "8"
-    },
-    {
-        en: "What is the slope of a horizontal line?",
-        ta: "கிடைமட்டக் கோட்டின் சாய்வு என்ன?",
-        options: ["0", "1", "Undefined", "-1"],
-        correct: "0"
-    },
-    {
-        en: "Find the volume of a cube with side 3cm.",
-        ta: "3 செ.மீ பக்க அளவுள்ள கனசதுரத்தின் கனஅளவைக் காண்க.",
-        options: ["$27 cm^3$", "$9 cm^3$", "$18 cm^3$", "$81 cm^3$"],
-        correct: "$27 cm^3$"
-    },
-    {
-        en: "What is $\\sin 90°$?",
-        ta: "$\\sin 90°$-ன் மதிப்பு என்ன?",
-        options: ["1", "0", "1/2", "Undefined"],
-        correct: "1"
-    },
-    {
-        en: "The GCD of 15 and 25 is:",
-        ta: "15 மற்றும் 25-ன் மீ.பொ.வ (GCD):",
-        options: ["5", "1", "15", "75"],
-        correct: "5"
-    },
-    {
-        en: "A quadratic equation has a degree of:",
-        ta: "இருபடிச் சமன்பாட்டின் படி:",
-        options: ["2", "1", "3", "4"],
-        correct: "2"
-    },
-    {
-        en: "Area of a circle is:",
-        ta: "வட்டத்தின் பரப்பளவு:",
-        options: ["$\\pi r^2$", "$2\\pi r$", "$\\pi d$", "$2\\pi r^2$"],
-        correct: "$\\pi r^2$"
-    },
-    {
-        en: "The median of 2, 4, 6, 8, 10 is:",
-        ta: "2, 4, 6, 8, 10-ன் இடைநிலை அளவு:",
-        options: ["6", "4", "8", "5"],
-        correct: "6"
-    }
+const allQuestions = [
+    { en: "What is the expansion of (x + y)²?", ta: "(x + y)²-ன் விரிவு என்ன?", options: ["x² + 2xy + y²", "x² + y²", "x² - 2xy + y²", "2x + 2y"], correct: "x² + 2xy + y²" },
+    { en: "The sum of the angles in a triangle is:", ta: "ஒரு முக்கோணத்தின் கோணங்களின் கூடுதல்:", options: ["180°", "90°", "360°", "270°"], correct: "180°" },
+    { en: "If A = {1, 2, 3}, what is the number of elements in Power Set P(A)?", ta: "A = {1, 2, 3} எனில், அதன் அடுக்குக் கணம் P(A)-ன் உறுப்புகளின் எண்ணிக்கை என்ன?", options: ["8", "3", "6", "9"], correct: "8" },
+    { en: "What is the slope of a horizontal line (X-axis)?", ta: "கிடைமட்டக் கோட்டின் (X-அச்சு) சாய்வு என்ன?", options: ["0", "1", "Undefined", "-1"], correct: "0" },
+    { en: "Find the volume of a cube with side 3 cm.", ta: "3 செ.மீ பக்க அளவுள்ள கனசதுரத்தின் கனஅளவைக் காண்க.", options: ["27 cm³", "9 cm³", "18 cm³", "81 cm³"], correct: "27 cm³" },
+    { en: "What is the value of sin 90°?", ta: "sin 90°-ன் மதிப்பு என்ன?", options: ["1", "0", "1/2", "Undefined"], correct: "1" },
+    { en: "The GCD (Greatest Common Divisor) of 15 and 25 is:", ta: "15 மற்றும் 25-ன் மீ.பொ.வ (GCD):", options: ["5", "1", "15", "75"], correct: "5" },
+    { en: "A quadratic equation has a degree of:", ta: "இருபடிச் சமன்பாட்டின் படி:", options: ["2", "1", "3", "4"], correct: "2" },
+    { en: "The area of a circle with radius 'r' is:", ta: "ஆரம் 'r' கொண்ட வட்டத்தின் பரப்பளவு:", options: ["πr²", "2πr", "πd", "2πr²"], correct: "πr²" },
+    { en: "The median of the data 2, 4, 6, 8, 10 is:", ta: "2, 4, 6, 8, 10 என்ற விவரங்களின் இடைநிலை அளவு:", options: ["6", "4", "8", "5"], correct: "6" },
+    { en: "The square root of 625 is:", ta: "625-ன் வர்க்கமூலம்:", options: ["25", "15", "35", "45"], correct: "25" },
+    { en: "What is the value of a⁰ (where a ≠ 0)?", ta: "a⁰-ன் மதிப்பு என்ன? (a ≠ 0)", options: ["1", "0", "a", "-1"], correct: "1" },
+    { en: "Which is the smallest prime number?", ta: "மிகச்சிறிய பகா எண் எது?", options: ["2", "1", "3", "0"], correct: "2" },
+    { en: "The perimeter of a rectangle with length 'l' and width 'w' is:", ta: "நீளம் 'l' மற்றும் அகலம் 'w' கொண்ட செவ்வகத்தின் சுற்றளவு:", options: ["2(l + w)", "l × w", "2lw", "l + w"], correct: "2(l + w)" },
+    { en: "What is the formula for the volume of a sphere?", ta: "கோளத்தின் கனஅளவு காணும் சூத்திரம்:", options: ["(4/3)πr³", "πr²", "(2/3)πr³", "4πr²"], correct: "(4/3)πr³" },
+    { en: "In a right-angled triangle, if sides are 3 and 4, the hypotenuse is:", ta: "ஒரு செங்கோண முக்கோணத்தின் பக்கங்கள் 3 மற்றும் 4 எனில், அதன் கர்ணம்:", options: ["5", "7", "6", "12"], correct: "5" },
+    { en: "The point (0, 5) lies on which axis?", ta: "(0, 5) என்ற புள்ளி எந்த அச்சில் அமையும்?", options: ["Y-axis", "X-axis", "Origin", "Quadrant II"], correct: "Y-axis" },
+    { en: "What is the value of tan 45°?", ta: "tan 45°-ன் மதிப்பு என்ன?", options: ["1", "0", "√3", "1/√3"], correct: "1" },
+    { en: "A linear equation (degree 1) represents a:", ta: "ஒரு படி கொண்ட நேரியல் சமன்பாடு எதைக் குறிக்கிறது?", options: ["Straight line", "Circle", "Parabola", "Point"], correct: "Straight line" },
+    { en: "The additive inverse of -7 is:", ta: "-7-ன் கூட்டல் நேர்மாறு:", options: ["7", "-7", "1/7", "0"], correct: "7" },
+    { en: "Number of diagonals in a triangle is:", ta: "முக்கோணத்தில் உள்ள மூலைவிட்டங்களின் எண்ணிக்கை:", options: ["0", "1", "2", "3"], correct: "0" },
+    { en: "If 2x = 10, then x is:", ta: "2x = 10 எனில், x-ன் மதிப்பு:", options: ["5", "20", "8", "12"], correct: "5" },
+    { en: "The distance between the origin (0,0) and (3, 4) is:", ta: "ஆதிப்புள்ளிக்கும் (3, 4) க்கும் இடைப்பட்ட தொலைவு:", options: ["5", "7", "25", "1"], correct: "5" },
+    { en: "What is the mode of 1, 2, 2, 3, 4?", ta: "1, 2, 2, 3, 4-ன் முகடு (Mode) எது?", options: ["2", "1", "3", "4"], correct: "2" },
+    { en: "The sum of the first 10 natural numbers is:", ta: "முதல் 10 இயல் எண்களின் கூடுதல்:", options: ["55", "45", "50", "60"], correct: "55" },
+    { en: "What is the value of cos 0°?", ta: "cos 0°-ன் மதிப்பு என்ன?", options: ["1", "0", "Undefined", "1/2"], correct: "1" },
+    { en: "A set with no elements is called:", ta: "உறுப்புகள் இல்லாத கணம் எவ்வாறு அழைக்கப்படும்?", options: ["Empty set", "Universal set", "Subset", "Power set"], correct: "Empty set" },
+    { en: "Surface area of a cube is (side = a):", ta: "கனசதுரத்தின் புறப்பரப்பு (பக்கம் = a):", options: ["6a²", "a³", "4a²", "12a"], correct: "6a²" },
+    { en: "Probability of a sure event is:", ta: "நிச்சயமான நிகழ்ச்சியின் நிகழ்தகவு:", options: ["1", "0", "0.5", "Infinity"], correct: "1" },
+    { en: "Two lines are parallel if their slopes are:", ta: "இரண்டு கோடுகளின் சாய்வுகள் எவ்வாறு இருந்தால் அவை இணைக்கோடுகள்?", options: ["Equal", "Product is -1", "Reciprocal", "Zero"], correct: "Equal" },
+    { en: "The degree of a constant polynomial is:", ta: "ஒரு மாறிலிப் பல்லுறுப்புக் கோவையின் படி:", options: ["0", "1", "Not defined", "Infinite"], correct: "0" },
+    { en: "What is (a - b)²?", ta: "(a - b)²-ன் மதிப்பு என்ன?", options: ["a² - 2ab + b²", "a² + b²", "a² + 2ab + b²", "a² - b²"], correct: "a² - 2ab + b²" },
+    { en: "Which of the following is an irrational number?", ta: "பின்வருவனவற்றில் விகிதமுறா எண் எது?", options: ["√2", "0.5", "2/3", "√4"], correct: "√2" },
+    { en: "If x + 5 = 0, then x = ?", ta: "x + 5 = 0 எனில், x = ?", options: ["-5", "5", "0", "1"], correct: "-5" },
+    { en: "Total surface area of a cylinder is:", ta: "உருளையின் மொத்தப் புறப்பரப்பு:", options: ["2πr(h + r)", "2πrh", "πr²h", "πrl"], correct: "2πr(h + r)" },
+    { en: "The complement angle of 30° is:", ta: "30°-ன் நிரப்புக் கோணம்:", options: ["60°", "150°", "90°", "120°"], correct: "60°" },
+    { en: "The supplementary angle of 100° is:", ta: "100°-ன் மிகைநிரப்புக் கோணம்:", options: ["80°", "10°", "180°", "260°"], correct: "80°" },
+    { en: "How many sides does a pentagon have?", ta: "ஐங்கோணத்தின் பக்கங்களின் எண்ணிக்கை என்ன?", options: ["5", "6", "4", "8"], correct: "5" },
+    { en: "The value of π is approximately:", ta: "π-ன் தோராய மதிப்பு:", options: ["22/7", "7/22", "3.12", "1.414"], correct: "22/7" },
+    { en: "Midpoint of (0,0) and (4,4) is:", ta: "(0,0) மற்றும் (4,4) ஆகியவற்றின் மையப்புள்ளி:", options: ["(2, 2)", "(4, 4)", "(0, 4)", "(1, 1)"], correct: "(2, 2)" },
+    { en: "The area of a triangle with base 'b' and height 'h' is:", ta: "அடிப்பக்கம் 'b' மற்றும் உயரம் 'h' கொண்ட முக்கோணத்தின் பரப்பளவு:", options: ["1/2 × b × h", "b × h", "2 × b × h", "l × w"], correct: "1/2 × b × h" },
+    { en: "If the radius of a circle is 7, its circumference is:", ta: "ஆரம் 7 எனில், வட்டத்தின் சுற்றளவு:", options: ["44", "22", "154", "14"], correct: "44" },
+    { en: "The value of 5 factorial (5!) is:", ta: "5 பேக்டோரியல் (5!)-ன் மதிப்பு:", options: ["120", "60", "24", "100"], correct: "120" },
+    { en: "The arithmetic mean of first five prime numbers is:", ta: "முதல் ஐந்து பகா எண்களின் கூட்டுச் சராசரி:", options: ["5.6", "5", "3.6", "4"], correct: "5.6" },
+    { en: "A line touching a circle at exactly one point is a:", ta: "வட்டத்தை ஒரே ஒரு புள்ளியில் தொட்டுச் செல்லும் கோடு:", options: ["Tangent", "Secant", "Chord", "Diameter"], correct: "Tangent" },
+    { en: "The longest chord of a circle is called:", ta: "வட்டத்தின் மிகப்பெரிய நாண் இவ்வாறு அழைக்கப்படும்:", options: ["Diameter", "Radius", "Arc", "Tangent"], correct: "Diameter" },
+    { en: "If x² = 16, then x is:", ta: "x² = 16 எனில், x-ன் மதிப்பு:", options: ["4 or -4", "8", "32", "2"], correct: "4 or -4" },
+    { en: "The range of data 10, 20, 30, 40, 50 is:", ta: "10, 20, 30, 40, 50 என்ற தரவுகளின் வீச்சு (Range):", options: ["40", "50", "10", "30"], correct: "40" },
+    { en: "1 km is equal to how many meters?", ta: "1 கி.மீ எத்தனை மீட்டருக்குச் சமம்?", options: ["1000 m", "100 m", "10 m", "10000 m"], correct: "1000 m" },
+    { en: "What is the result of (a + b)(a - b)?", ta: "(a + b)(a - b)-ன் மதிப்பு என்ன?", options: ["a² - b²", "a² + b²", "2a - 2b", "a² - 2ab + b²"], correct: "a² - b²" },
+    { en: "An angle greater than 90° and less than 180° is:", ta: "90°-க்கு அதிகமாகவும் 180°-க்கு குறைவாகவும் உள்ள கோணம்:", options: ["Obtuse", "Acute", "Right", "Reflex"], correct: "Obtuse" },
+    { en: "Volume of a cylinder is:", ta: "உருளையின் கனஅளவு:", options: ["πr²h", "2πrh", "1/3 πr²h", "4/3 πr³"], correct: "πr²h" },
+    { en: "The cube root of 27 is:", ta: "27-ன் கனமூலம்:", options: ["3", "9", "6", "4"], correct: "3" },
+    { en: "Discriminant of ax² + bx + c = 0 is:", ta: "ax² + bx + c = 0-ன் தன்மைகாட்டி (Discriminant):", options: ["b² - 4ac", "b² + 4ac", "4ac - b²", "√(b² - 4ac)"], correct: "b² - 4ac" },
+    { en: "The ratio sin θ / cos θ is equal to:", ta: "sin θ / cos θ எதற்குச் சமம்?", options: ["tan θ", "cot θ", "sec θ", "1"], correct: "tan θ" },
+    { en: "The centroid divides the median in the ratio:", ta: "நடுக்கோட்டு மையம் நடுக்கோட்டைப் பிரிக்கும் விகிதம்:", options: ["2 : 1", "1 : 2", "1 : 1", "3 : 1"], correct: "2 : 1" },
+    { en: "If x = 2 and y = 3, then 3x + 2y is:", ta: "x = 2, y = 3 எனில், 3x + 2y-ன் மதிப்பு:", options: ["12", "10", "13", "11"], correct: "12" },
+    { en: "A polygon with 8 sides is called:", ta: "8 பக்கங்களைக் கொண்ட பலகோணம்:", options: ["Octagon", "Hexagon", "Heptagon", "Nonagon"], correct: "Octagon" },
+    { en: "The reciprocal of 2/3 is:", ta: "2/3-ன் தலைகீழி:", options: ["3/2", "-2/3", "1/2", "1/3"], correct: "3/2" },
+    { en: "The product of a non-zero number and its reciprocal is:", ta: "பூஜ்யமற்ற ஓர் எண் மற்றும் அதன் தலைகீழியின் பெருக்கற்பலன்:", options: ["1", "0", "The number itself", "-1"], correct: "1" }
 ];
 
-let currentQ = 0;
-let score = 0;
-let userAnswers = [];
+let selectedQuestions = [];
+let currentQIndex = 0;
+let userScore = 0;
+let detailedResults = [];
+
+// Fisher-Yates Shuffle Algorithm
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+function initQuiz() {
+    // Shuffle all 60 questions and pick the first 10
+    let pool = shuffle([...allQuestions]);
+    selectedQuestions = pool.slice(0, 10);
+    
+    currentQIndex = 0;
+    userScore = 0;
+    detailedResults = [];
+    document.getElementById("score-screen").style.display = "none";
+    document.getElementById("quiz-screen").style.display = "block";
+    loadQuestion();
+}
 
 function loadQuestion() {
-    const q = quizData[currentQ];
-    document.getElementById("progress").innerText = `Question ${currentQ + 1} of 10`;
+    const q = selectedQuestions[currentQIndex];
+    document.getElementById("progress").innerText = `Question ${currentQIndex + 1} of 10`;
     document.getElementById("q-en").innerText = q.en;
     document.getElementById("q-ta").innerText = q.ta;
     
-    const optionsContainer = document.getElementById("options");
-    optionsContainer.innerHTML = "";
+    const optionsDiv = document.getElementById("options");
+    optionsDiv.innerHTML = "";
     
-    // Shuffle options
-    const shuffledOptions = [...q.options].sort(() => Math.random() - 0.5);
+    // Shuffle the options for the current question
+    const shuffledOptions = shuffle([...q.options]);
     
     shuffledOptions.forEach(opt => {
         const btn = document.createElement("button");
         btn.className = "option-btn";
         btn.innerText = opt;
-        btn.onclick = () => selectAnswer(opt);
-        optionsContainer.appendChild(btn);
+        btn.onclick = () => checkAnswer(opt);
+        optionsDiv.appendChild(btn);
     });
 }
 
-function selectAnswer(selected) {
-    userAnswers.push({
-        question: quizData[currentQ].en,
-        correct: quizData[currentQ].correct,
-        user: selected
+function checkAnswer(selected) {
+    const correct = selectedQuestions[currentQIndex].correct;
+    
+    detailedResults.push({
+        en: selectedQuestions[currentQIndex].en,
+        ta: selectedQuestions[currentQIndex].ta,
+        user: selected,
+        truth: correct
     });
-    
-    if(selected === quizData[currentQ].correct) score++;
-    
-    currentQ++;
-    if(currentQ < quizData.length) {
+
+    if (selected === correct) userScore++;
+
+    currentQIndex++;
+    if (currentQIndex < 10) {
         loadQuestion();
     } else {
         showResults();
@@ -154,22 +187,30 @@ function selectAnswer(selected) {
 function showResults() {
     document.getElementById("quiz-screen").style.display = "none";
     document.getElementById("score-screen").style.display = "block";
-    document.getElementById("final-score").innerText = `${score} / ${quizData.length}`;
+    document.getElementById("final-score").innerText = `${userScore} / 10`;
     
     const reviewArea = document.getElementById("review-area");
-    userAnswers.forEach((item, index) => {
+    reviewArea.innerHTML = "<h3 style='color:#333; margin-top:20px;'>Review / மதிப்பாய்வு:</h3>";
+    
+    detailedResults.forEach((item, i) => {
+        const isCorrect = item.user === item.truth;
         const div = document.createElement("div");
         div.className = "review-item";
         div.innerHTML = `
-            <strong>Q${index+1}: ${item.question}</strong><br>
-            Your Answer: <span style="color:${item.user === item.correct ? 'green' : 'red'}">${item.user}</span><br>
-            <span class="correct">Correct: ${item.correct}</span>
+            <strong>${i+1}. ${item.en}</strong><br>
+            <small style="color:#777;">${item.ta}</small><br>
+            <div style="margin-top:8px;">
+                Your Answer: <span class="${isCorrect ? 'correct-ans' : 'wrong-ans'}">${item.user}</span><br>
+                ${!isCorrect ? 'Correct Answer: <span class="correct-ans">' + item.truth + '</span>' : ''}
+            </div>
         `;
         reviewArea.appendChild(div);
     });
 }
 
-loadQuestion();
+// Run quiz on page load
+window.onload = initQuiz;
 </script>
+
 </body>
 </html>
